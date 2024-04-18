@@ -1,18 +1,34 @@
-import { View, Text, ScrollView, Image } from "react-native";
+import { View, Text, ScrollView, Image, Alert } from "react-native";
 import React, { useState } from "react";
 
 import { images } from "../../constants";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FormField from "../../components/FormField";
 import CustomButton from "../../components/CustomButton";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
+import { createUser } from "../../lib/appwrite";
 
 const SignUp = () => {
   const [form, setForm] = useState({ username: "", email: "", password: "" });
 
   const [isSubmiting, setIsSubmiting] = useState(false);
 
-  const submit = () => {};
+  const submit = async () => {
+    if (form.username === "" || form.email === "" || form.password === "") {
+      Alert.alert("Error", "Please fill all the fields!");
+    }
+    setIsSubmiting(true);
+    try {
+      const result = await createUser(form.email, form.password, form.username);
+
+      router.replace("/home");
+      // set to the state
+    } catch (err) {
+      Alert.alert("Error", err.message);
+    } finally {
+      setIsSubmiting(false);
+    }
+  };
 
   return (
     <SafeAreaView className="bg-primary h-full">
@@ -29,7 +45,7 @@ const SignUp = () => {
           </Text>
 
           <FormField
-            title="Usename"
+            title="Username"
             value={form.username}
             handleChangeText={(e) => setForm({ ...form, username: e })}
             otherStyles="mt-7"
